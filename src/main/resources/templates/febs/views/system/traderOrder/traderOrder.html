@@ -1,0 +1,193 @@
+<style>
+    #febs-order xm-select {
+        min-height: 30px;
+        line-height: 30px;
+    }
+    #febs-order xm-select > .xm-label .scroll .label-content {
+        display: flex;
+        padding: 0 30px 0 10px;
+    }
+</style>
+<div class="layui-fluid layui-anim febs-anim" id="febs-traderOrder" lay-title="工厂设备管理">
+    <div class="layui-row febs-container">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-body febs-table-full">
+                    <form class="layui-form layui-table-form" lay-filter="order-table-form">
+                        <div class="layui-row">
+                            <div class="layui-col-md2 layui-col-sm12 layui-col-xs12 table-action-area">
+                                <div class="layui-btn layui-btn-sm layui-btn-primary febs-button-blue-plain table-action" id="query">
+                                    <i class="layui-icon">&#xe848;</i>
+                                </div>
+                                <div class="layui-btn layui-btn-sm layui-btn-primary febs-button-green-plain table-action" id="reset">
+                                    <i class="layui-icon">&#xe79b;</i>
+                                </div>
+                                <div class="layui-btn layui-btn-sm layui-btn-primary table-action action-more" id="orderAdd">
+                                    <i class="layui-icon">&#xe875;</i>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <table lay-filter="traderOrderTable" lay-data="{id: 'traderOrderTable'}"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/html" id="orderStatus-option">
+    {{#
+    let orderStatus = {
+    '7':{title:'完成',color:'volcano'},
+    '6':{title:'发货',color:'volcano'},
+    '5':{title:'收货',color:'volcano'},
+    '4':{title:'完工',color:'volcano'},
+    '3':{title: '排产', color:'volcano'},
+    '2':{title: '中标', color:'volcano'},
+    '1': {title: '发布', color:'volcano'},
+    '0': {title: '订单创建', color:'volcano'}
+    }[d.orderStatus];
+    }}
+    <span class="layui-badge febs-bg-{{orderStatus.color}}">{{ orderStatus.title }}</span>
+</script>
+<script  type="text/html" id="order-option">
+    {{# if (d.orderStatus == 0){}}
+    <a lay-event="action1" ><i class="layui-icon febs-edit-area febs-green">&#xe7a0;</i></a>
+    {{#}}}{{# if (d.orderStatus == 1){}}
+    <a lay-event="action2"><i class="layui-icon febs-edit-area febs-green">&#xe80f;</i></a>
+    {{#}}}
+</script>
+<script data-th-inline="none" type="text/javascript">
+    layui.use(['dropdown', 'jquery', 'laydate', 'form', 'table', 'febs', 'xmSelect'], function () {
+        let $ = layui.jquery,
+            laydate = layui.laydate,
+            febs = layui.febs,
+            form = layui.form,
+            table = layui.table,
+            dropdown = layui.dropdown,
+            $view = $('#febs-traderOrder'),
+            $query = $view.find('#query'),
+            $reset = $view.find('#reset'),
+            $orderAdd = $view.find('#orderAdd'),
+            $searchForm = $view.find('form'),
+            sortObject = {field: 'createTime', type: null},
+            tableIns;
+
+        form.render();
+
+        initTable();
+
+        table.on('sort(userTable)', function (obj) {
+            sortObject = obj;
+            tableIns.reload({
+                initSort: obj,
+                where: $.extend(getQueryParams(), {
+                    field: obj.field,
+                    order: obj.type
+                })
+            });
+        });
+
+        $reset.on('click', function () {
+            $searchForm[0].reset();
+            sortObject.type = 'null';
+            deptXmlSelect.setValue(['']);
+            createTimeTo = null;
+            createTimeFrom = null;
+            tableIns.reload({where: getQueryParams(true), page: {curr: 1}, initSort: sortObject});
+        });
+
+        $orderAdd.on('click',function (){
+            febs.modal.open('新增订单', 'system/traderOrder/traderOrderAdd', {
+                btn: ['提交', '重置'],
+                area: $(window).width() <= 750 ? '95%' : '50%',
+                yes: function (index, layero) {
+                    $('#traderOrder-add').find('#submit').trigger('click');
+                },
+                btn2: function () {
+                    $('#user-add').find('#reset').trigger('click');
+                    return false;
+                }
+            });
+        })
+
+        $query.on('click', function () {
+            let params = $.extend(getQueryParams(), {field: sortObject.field, order: sortObject.type});
+            tableIns.reload({where: params, page: {curr: 1}});
+        });
+        function getQueryParams(data) {
+            let params = $searchForm.serializeJson();
+            return params;
+        }
+
+        function initTable() {
+            tableIns = febs.table.init({
+                elem: $view.find('table'),
+                id: 'traderOrderTable',
+                // url: ctx + 'order/list' + currentUser.userId,
+                url: ctx + 'order/list?userId=' + currentUser.userId,
+                cols: [[
+                    {type: 'checkbox'},
+                    {field: "orderId",title:'序号',minWidth: 50},
+                    {field: "orderNumber",title: '产品编号',minWidth: 200},
+                    {field: 'productName', title: '产品名称', minWidth: 150},
+                    {field:'orderCountNum',title: '订购数量',minWidth: 50},
+                    {field: 'orderDeadDate', title: '交付日期', minWidth: 150},
+                    {field: 'orderDeliverDate', title: '投标截止日期', minWidth: 150},
+                    {field: 'orderCustomerName', title: '收货人', minWidth: 150},
+                    {field: 'orderCustomerPhone', title: '收货人联系方式', minWidth: 150},
+                    {field: 'orderCustomerAddress', title: '收货地址', minWidth: 150},
+                    {title: '订单状态', toolbar: '#orderStatus-option', minWidth: 140},
+                    {title: '操作', toolbar: '#order-option', minWidth: 140}
+                    //设备租用状态
+                ]]
+            });
+            console.log(tableIns);
+        }
+        table.on('tool(traderOrderTable)', function (obj) {
+            let data = obj.data,
+                layEvent = obj.event;
+            if (layEvent === 'action1') {
+                febs.modal.confirm('发布订单', '确定发布订单吗？', function () {
+                    action1(data);
+                });
+            }
+            if (layEvent === 'action2') {
+                febs.modal.confirm('投标工厂', '确定投标该工厂吗？', function () {
+                    action2(data);
+                });
+            }
+        });
+        function action1(data) {
+            console.log('--------for data--------');
+            console.log(data);
+            data.orderStatus = '1';
+            febs.post(ctx + 'order/update', data, function () {
+                layer.closeAll();
+                febs.alert.success(device.deviceName + '订单发布成功');
+                $query.click();
+            });
+            return false;
+        }
+        function action2(data) {
+            console.log("first data");
+            console.log(data);
+            console.log("second currentUser");
+            console.log(currentUser)
+            currentUser.orderId = data.orderId;
+            console.log("third,get into");
+            console.log(currentUser);
+            febs.modal.open('确定选标','system/traderOrder/traderOrderSet',{
+                btn: ['提交', '重置'],
+                area: $(window).width() <= 750 ? '95%' : '50%',
+                yes: function (index, layero) {
+                    $('#trader-order-set').find('#submit').trigger('click');
+                },
+                btn2: function () {
+                    $('#user-add').find('#reset').trigger('click');
+                    return false;
+                }
+            });
+            return false;
+        }
+    })
+</script>

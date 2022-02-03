@@ -1,0 +1,64 @@
+<style>
+    #user-update {
+        padding: 20px 25px 25px 0;
+    }
+</style>
+<div class="layui-fluid" id="device-type-update">
+    <form class="layui-form" action="" lay-filter="device-type-update-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label febs-form-item-require">设备类型</label>
+            <div class="layui-input-block">
+                <input type="text" name="deviceTypeName" minlength="2" maxlength="10" lay-verify="range|username"
+                       autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label febs-form-item-require">设备类型描述</label>
+            <div class="layui-input-block">
+                <textarea name="deviceTypeDetail" maxlength="100" class="layui-textarea"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item febs-hide">
+            <button class="layui-btn" lay-submit="" lay-filter="device-type-update-form-submit" id="submit"></button>
+        </div>
+    </form>
+</div>
+
+<script data-th-inline="javascript">
+    layui.use(['febs', 'form', 'xmSelect', 'validate'], function () {
+        let $ = layui.$,
+            febs = layui.febs,
+            layer = layui.layer,
+            form = layui.form,
+            xmSelect = layui.xmSelect,
+            deviceType = [[${deviceType}]],
+            validate = layui.validate,
+            dataPermissionXmlSelect,
+            roleXmSelect,
+            deptXmlSelect;
+
+        form.verify(validate);
+        form.render();
+
+        initUserValue();
+
+        function initUserValue() {
+            form.val("device-type-update-form", {
+                "deviceTypeName": deviceType.deviceTypeName,
+                "deviceTypeDetail":deviceType.deviceTypeDetail,
+            });
+        }
+
+        form.on('submit(device-type-update-form-submit)', function (data) {
+            deviceType.deviceTypeName = data.field.deviceTypeName;
+            deviceType.deviceTypeDetail = data.field.deviceTypeDetail;
+            febs.post(ctx + 'deviceType/update', deviceType, function () {
+                layer.closeAll();
+                febs.alert.success(deviceType.deviceTypeName + '设备类型修改成功');
+                $('#febs-deviceType').find('#reset').click();
+            });
+            $query.click();
+            return true;
+        });
+    });
+</script>

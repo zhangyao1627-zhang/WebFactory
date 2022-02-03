@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.mrbird.febs.system.mapper.DeviceTypeMapper">
+    <sql id="countDeviceTypeDetailSql" >
+        SELECT
+        COUNT(1)
+        FROM
+        device_type dt
+        WHERE 1 = 1
+        <if test="deviceType.deviceTypeName != null and deviceType.deviceTypeName !=''">
+            AND dt.device_type_name = #{deviceType.deviceTypeName}
+        </if>
+        <if test="deviceType.deviceTypeDetail != null and deviceType.deviceTypeDetail != '' ">
+            AND dt.device_type_detail = #{deviceType.deviceTypeDetail}
+        </if>
+    </sql>
+    <select id="findById" parameterType="Long" resultType="deviceType">
+       SELECT
+            dt.device_type_id deviceTypeId,
+            dt.device_type_name deviceTypeName,
+            dt.device_type_detail deviceTypeDetail
+        FROM
+            device_type dt
+        WHERE
+            dt.device_type_id = #{deviceTypeId}
+    </select>
+    <select id="countDeviceTypeDetail" parameterType="deviceType" resultType="long">
+        <include refid="countDeviceTypeDetailSql"/>
+    </select>
+</mapper>

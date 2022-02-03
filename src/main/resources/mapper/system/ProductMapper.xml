@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.mrbird.febs.system.mapper.ProductMapper">
+
+    <sql id="countProductDetailSql" >
+        SELECT
+        COUNT(1)
+        FROM
+        product p
+        left join product_type pt on p.product_type_id = pt.product_type_id
+        WHERE 1 = 1
+        <if test="product.productName != null and product.productName != ''">
+            AND p.product_name = #{product.productName}
+        </if>
+
+    </sql>
+
+    <sql id="findProductDetailSql">
+        SELECT
+        p.product_id productId,
+        p.product_type_id productTypeId,
+        p.product_number productNumber,
+        pt.product_type_name productTypeName,
+        p.product_name productName,
+        p.product_norms productNorms,
+        p.product_describe productDescribe
+        FROM
+        product p
+        left join product_type pt on p.product_type_id = pt.product_type_id
+        WHERE 1 = 1
+        <if test="product.productTypeId != null and product.productTypeId != ''">
+            AND pt.product_type_id = #{product.productTypeId}
+        </if>
+        <if test="product.productNumber != null and product.productNumber != ''">
+            AND p.product_number = #{product.productNumber}
+        </if>
+        <if test="product.productName != null and product.productName != ''">
+            AND p.product_name = #{product.productName}
+        </if>
+        <if test="product.productNorms != null and product.productNorms != ''">
+            AND p.product_norms = #{product.productNorms}
+        </if>
+        <if test="product.productDescribe != null and product.productDescribe != ''">
+            AND p.product_describe = #{product.productDescribe}
+        </if>
+    </sql>
+
+    <select id="countProductDetail" parameterType="product" resultType="long">
+        <include refid="countProductDetailSql"/>
+    </select>
+
+    <select id="findProductDetailPage" parameterType="product" resultType="product">
+        <include refid="findProductDetailSql"/>
+    </select>
+
+    <select id="findProductDetail" parameterType="product" resultType="product">
+        <include refid="findProductDetailSql"/>
+    </select>
+
+    <select id="findByProductId" parameterType="Long" resultType="product">
+       select
+         p.product_id productId,
+         p.product_type_id productTypeId,
+         p.product_number productNumber,
+         pt.product_type_name productTypeName,
+         p.product_name productName,
+         p.product_norms productNorms,
+         p.product_describe productDescribe
+       from
+         product p
+       left join product_type pt on p.product_type_id = pt.product_type_id
+       where product_id = #{productId}
+    </select>
+</mapper>

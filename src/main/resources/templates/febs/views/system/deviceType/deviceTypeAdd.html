@@ -1,0 +1,58 @@
+<style>
+    #user-add {
+        padding: 20px 25px 25px 0;
+    }
+</style>
+<div class="layui-fluid" id="device-type-add">
+    <form class="layui-form" action="" lay-filter="device-type-add-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label febs-form-item-require">设备类型</label>
+            <div class="layui-input-block">
+                <input type="text" name="deviceTypeName" minlength="2" maxlength="10" lay-verify="range|username"
+                       autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label febs-form-item-require">设备类型描述</label>
+            <div class="layui-input-block">
+                <textarea name="deviceTypeDetail" maxlength="100" class="layui-textarea"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item febs-hide">
+            <button class="layui-btn" lay-submit="" lay-filter="device-type-add-form-submit" id="submit"></button>
+        </div>
+    </form>
+</div>
+
+<script>
+    layui.use(['febs', 'form', 'validate'], function () {
+        let $ = layui.$,
+            febs = layui.febs,
+            layer = layui.layer,
+            form = layui.form,
+            validate = layui.validate;
+
+        form.verify(validate);
+        form.render();
+
+        form.on('submit(device-type-add-form-submit)', function (data) {
+            console.log('------------------');
+            console.log(data);
+            console.log('------------------');;
+            if (!data.field.deviceTypeName) {
+                febs.alert.warn('请输入设备类型名称');
+                return false;
+            }
+            if(!data.field.deviceTypeDetail){
+                febs.alert.warn('请输入设备类型描述');
+                return false;
+            }
+            febs.post(ctx + 'deviceType/add', data.field, function () {
+                layer.closeAll();
+                febs.alert.success('新增设备类型成功');
+                $('#febs-deviceType').find('#reset').click();
+            });
+            return false;
+        });
+    });
+</script>

@@ -1,0 +1,130 @@
+<style>
+    #traderOrder-add {
+        padding: 20px 25px 25px 0;
+    }
+</style>
+<div class="layui-fluid" id="traderOrder-add">
+    <form class="layui-form" action="" lay-filter="traderOrder-add-form">
+        <div class="layui-form-item" >
+            <div class="layui-inline">
+                <label class="layui-form-label layui-form-label-sm">订单编号</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="orderNumber" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item" >
+            <div class="layui-inline">
+                <label class="layui-form-label layui-form-label-sm">产品名称</label>
+                <div class="layui-input-inline">
+                    <select name="productId" id="selectList">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item" >
+            <div class="layui-inline">
+                <label class="layui-form-label layui-form-label-sm">订购数量</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="orderCountNum" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-form-item" >
+            <div class="layui-inline">
+                <label class="layui-form-label layui-form-label-sm">交付日期</label>
+                <div class="layui-input-inline">
+                    <input type="date" name="orderDeadDate" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item" >
+            <div class="layui-inline">
+                <label class="layui-form-label layui-form-label-sm">投标截止日期</label>
+                <div class="layui-input-inline">
+                    <input type="date" name="orderDeliverDate" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item" >
+            <div class="layui-inline">
+                <label class="layui-form-label layui-form-label-sm">客户姓名</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="orderCustomerName" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item" >
+            <div class="layui-inline">
+                <label class="layui-form-label layui-form-label-sm">客户电话</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="orderCustomerPhone" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item" >
+            <div class="layui-inline">
+                <label class="layui-form-label layui-form-label-sm">客户地址</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="orderCustomerAddress" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item febs-hide">
+            <button class="layui-btn" lay-submit="" lay-filter="traderOrder-add-form-submit" id="submit"></button>
+        </div>
+    </form>
+</div>
+
+<script data-th-inline="javascript" type="text/javascript">
+    layui.use(['febs', 'form', 'validate', 'xmSelect'], function () {
+        let $ = layui.$,
+            febs = layui.febs,
+            layer = layui.layer,
+            form = layui.form,
+            validate = layui.validate,
+            $view = $('#febs-deviceType'),
+            $query = $view.find('#query'),
+            $reset = $view.find('#reset'),
+            $searchForm = $view.find('form');
+        form.verify(validate);
+        form.render();
+
+        //获取相对应的数据（下拉框中的）
+        $.ajax({
+            url:ctx + "product/list",
+            dataType:'json',
+            type:'get',
+            success:function (data)
+            {
+                $.each(data.data.rows,function (index,value){
+                    $('#selectList').append(new Option(value.productName,value.productId));
+                })
+                form.render("select");
+            }
+        });
+        form.render("select");
+
+        form.on('submit(traderOrder-add-form-submit)', function (data) {
+            console.log('---------data---------');
+            console.log(data);
+            console.log('---------data field---------');
+            console.log(data.field);
+            console.log('---------data name----------');
+            console.log(currentUser.username);
+            console.log('--------get all the data-----');
+            console.log(data.field);
+            console.log(data);
+            data.field.userId = currentUser.userId;
+            console.log('------------------');
+            febs.post(ctx + 'order/add', data.field, function () {
+                layer.closeAll();
+                febs.alert.success('新增产品类型成功');
+                $('#febs-traderOrder').find('#query').click();
+            });
+            return false;
+        });
+    });
+</script>

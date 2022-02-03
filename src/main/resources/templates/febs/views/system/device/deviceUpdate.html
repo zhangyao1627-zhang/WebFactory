@@ -1,0 +1,161 @@
+<style>
+    #device-update {
+        padding: 20px 25px 25px 0;
+    }
+</style>
+<div class="layui-fluid" id="device-update">
+    <form class="layui-form" action="" lay-filter="device-update-form">
+        <div class="layui-form-item" >
+            <div class="layui-inline">
+                <label class="layui-form-label layui-form-label-sm">设备编号</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="deviceNumber" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item" >
+            <div class="layui-inline">
+                <label class="layui-form-label layui-form-label-sm">设备名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="deviceName" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item" >
+            <div class="layui-inline">
+                <label class="layui-form-label layui-form-label-sm">设备类型</label>
+                <div class="layui-input-inline">
+                    <select name="deviceTypeId" id="selectList">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item" >
+            <div class="layui-inline">
+                <label class="layui-form-label layui-form-label-sm">设备规格</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="deviceNorms" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item" >
+            <div class="layui-inline">
+                <label class="layui-form-label layui-form-label-sm">设备描述</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="deviceDescribe" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item febs-hide">
+            <button class="layui-btn" lay-submit="" lay-filter="device-update-form-submit" id="submit"></button>
+        </div>
+    </form>
+</div>
+
+<script data-th-inline="javascript" type="text/javascript">
+    layui.use(['febs', 'form', 'validate', 'xmSelect'], function () {
+        let $ = layui.$,
+            febs = layui.febs,
+            layer = layui.layer,
+            form = layui.form,
+            xmSelect = layui.xmSelect,
+            device = [[${device}]],
+            table = layui.table,
+            dropdown = layui.dropdown,
+            validate = layui.validate;
+            // productTypeXmlSelect;
+            $view = $('#febs-deviceType'),
+            $query = $view.find('#query'),
+            $reset = $view.find('#reset'),
+            $searchForm = $view.find('form');
+
+            form.verify(validate);
+            form.render();
+
+            initUserValue();
+
+            $.ajax({
+                url:ctx + "deviceType/list",
+                dataType:'json',
+                type:'get',
+                success:function (data)
+                {
+                    $.each(data.data.rows,function (index,value){
+                        $('#selectList').append(new Option(value.deviceTypeName,value.deviceTypeId));
+                    })
+                    form.render("select");
+                }
+            });
+            form.render("select");
+
+            function initUserValue() {
+                form.val("device-update-form", {
+                    "deviceDescribe":device.deviceDescribe,
+                    "deviceName":device.deviceName,
+                    "deviceNorms":device.deviceNorms,
+                    "deviceNumber":device.deviceNumber,
+                    "deviceTypeId":device.deviceTypeId,
+                });
+            }
+
+            // //获取相对应的数据（下拉框中的）
+            // productTypeXmlSelect = xmSelect.render({
+            //     el: '#productType-Update',
+            //     toolbar: {show: true},
+            //     name: 'productTypeId',
+            //     theme: {
+            //         color: '#52c41a',
+            //     },
+            //     prop: {
+            //         name: 'productTypeName',
+            //         value: 'productTypeId'
+            //     },
+            //     data: []
+            // });
+            //
+            // febs.get(ctx + 'productType/list', null, function (data) {
+            //     productTypeXmlSelect.update({
+            //         data: data.data.rows,
+            //         autoRow: true,
+            //     })
+            // });
+
+            $.ajax({
+                url:ctx + "productType/list",
+                dataType:'json',
+                type:'get',
+                success:function (data)
+                {
+                    $.each(data.data.rows,function (index,value){
+                        $('#selectList').append(new Option(value.productTypeName,value.productTypeId));
+                    })
+                    form.render("select");
+                }
+            });
+            form.render("select");
+
+            form.on('submit(device-update-form-submit)', function (data) {
+
+                data.field.deviceRentStatus = device.deviceRentStatus;
+                data.field.deviceRunningStatus = device.deviceRunningStatus;
+                data.field.deviceId = device.deviceId;
+                data.field.factoryId = device.factoryId;
+
+                if (data.field.deviceRentStatus != '2') {
+                    febs.alert.warn('该设备已被租用，无法修改');
+                    return;
+                }
+                if(data.field.deviceRunningStatus != '0'){
+                    febs.alert.warn('该设备不处于正常关闭状态，无法修改');
+                    return;
+                }
+                febs.post(ctx + 'device/update', data.field, function () {
+                    layer.closeAll();
+                    febs.alert.success(device.deviceName + '产品类型修改成功');
+                    $('#febs-device').find('#query').click();
+                });
+                return false;
+            });
+    });
+</script>

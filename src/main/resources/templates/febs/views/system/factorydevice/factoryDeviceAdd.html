@@ -1,0 +1,105 @@
+<style>
+    #device-add {
+        padding: 20px 25px 25px 0;
+    }
+</style>
+<div class="layui-fluid" id="device-add">
+    <form class="layui-form" action="" lay-filter="device-add-form">
+        <div class="layui-form-item" >
+            <div class="layui-inline">
+                <label class="layui-form-label layui-form-label-sm">设备编号</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="deviceNumber" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item" >
+            <div class="layui-inline">
+                <label class="layui-form-label layui-form-label-sm">设备名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="deviceName" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item" >
+            <div class="layui-inline">
+                <label class="layui-form-label layui-form-label-sm">设备类型</label>
+                <div class="layui-input-inline">
+                    <select name="deviceTypeId" id="selectList">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item" >
+            <div class="layui-inline">
+                <label class="layui-form-label layui-form-label-sm">设备规格</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="deviceNorms" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item" >
+            <div class="layui-inline">
+                <label class="layui-form-label layui-form-label-sm">设备描述</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="deviceDescribe" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item febs-hide">
+            <button class="layui-btn" lay-submit="" lay-filter="device-add-form-submit" id="submit"></button>
+        </div>
+    </form>
+</div>
+
+<script data-th-inline="javascript" type="text/javascript">
+    layui.use(['febs', 'form', 'validate', 'xmSelect'], function () {
+        let $ = layui.$,
+            febs = layui.febs,
+            layer = layui.layer,
+            form = layui.form,
+            validate = layui.validate,
+            $view = $('#febs-deviceType'),
+            $query = $view.find('#query'),
+            $reset = $view.find('#reset'),
+            $searchForm = $view.find('form');
+        form.verify(validate);
+        form.render();
+
+        //获取相对应的数据（下拉框中的）
+        $.ajax({
+            url:ctx + "deviceType/list",
+            dataType:'json',
+            type:'get',
+            success:function (data)
+            {
+                $.each(data.data.rows,function (index,value){
+                    $('#selectList').append(new Option(value.deviceTypeName,value.deviceTypeId));
+                })
+                form.render("select");
+            }
+        });
+        form.render("select");
+
+        form.on('submit(device-add-form-submit)', function (data) {
+            console.log('---------data---------');
+            console.log(data);
+            console.log('---------data field---------');
+            console.log(data.field);
+            console.log('---------data name----------');
+            console.log(currentUser.username);
+            data.field.userName = currentUser.username;
+            console.log('--------get all the data-----');
+            console.log(data.field);
+
+            console.log('------------------');
+            febs.post(ctx + 'device/addFactoryDevice', data.field, function () {
+                layer.closeAll();
+                febs.alert.success('新增设备类型成功');
+                $('#febs-factory-device').find('#query').click();
+            });
+            return false;
+        });
+    });
+</script>

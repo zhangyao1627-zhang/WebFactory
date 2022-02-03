@@ -1,0 +1,59 @@
+<style>
+    #user-update {
+        padding: 20px 25px 25px 0;
+    }
+</style>
+<div class="layui-fluid" id="factory-update">
+    <form class="layui-form" action="" lay-filter="factory-update-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label febs-form-item-require">状态：</label>
+            <div class="layui-input-block">
+                <input type="radio" name="status" value="1" title="有效">
+                <input type="radio" name="status" value="0" title="禁用">
+            </div>
+        </div>
+        <div class="layui-form-item febs-hide">
+            <button class="layui-btn" lay-submit="" lay-filter="user-update-form-submit" id="submit"></button>
+        </div>
+    </form>
+</div>
+
+<script data-th-inline="javascript">
+    layui.use(['febs', 'form', 'xmSelect', 'validate'], function () {
+        let $ = layui.$,
+            febs = layui.febs,
+            layer = layui.layer,
+            form = layui.form,
+            xmSelect = layui.xmSelect,
+            factory = [[${factory}]],
+            validate = layui.validate,
+            dataPermissionXmlSelect,
+            roleXmSelect,
+            deptXmlSelect;
+
+        form.verify(validate);
+        form.render();
+
+        initUserValue();
+
+        function initUserValue() {
+            form.val("factory-update-form", {
+                "status": factory.factoryStatus,
+            });
+        }
+
+        form.on('submit(user-update-form-submit)', function (data) {
+            //具體的
+            console.log(factory);
+            factory.factoryStatus = data.field.status;
+            console.log(factory);
+            febs.post(ctx + 'factory/update', factory, function () {
+                layer.closeAll();
+                febs.alert.success(factory.factoryName + '用户数据修改成功');
+                $('#febs-factory').find('#query').click();
+            });
+            $query.click();
+            return true;
+        });
+    });
+</script>

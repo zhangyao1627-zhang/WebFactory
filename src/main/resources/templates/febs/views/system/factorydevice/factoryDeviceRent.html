@@ -1,0 +1,107 @@
+<style>
+    #factory-device-rent {
+        padding: 20px 25px 25px 0;
+    }
+</style>
+<div class="layui-fluid" id="factory-device-rent">
+    <form class="layui-form" action="" lay-filter="device-add-form">
+        <table lay-filter="deviceRentTable" lay-data="{id: 'deviceRentTable'}"></table>
+        <div class="layui-form-item febs-hide">
+            <button class="layui-btn" lay-submit="" lay-filter="device-add-form-submit" id="submit"></button>
+        </div>
+    </form>
+</div>
+<script type="text/html" id="deviceRunningStatus-option">
+    {{#
+    let deviceRunningStatus = {
+    '3':{title:'故障',color:'volcano'},
+    '2':{title: '闲置中', color:'volcano'},
+    '1': {title: '生产中', color:'volcano'},
+    '0': {title: '关闭', color:'blue'}
+    }[d.deviceRunningStatus];
+    }}
+    <span class="layui-badge febs-bg-{{deviceRunningStatus.color}}">{{ deviceRunningStatus.title }}</span>
+</script>
+<script type="text/html" id="device-rent-option">
+    <a lay-event="rent"><i class="layui-icon febs-edit-area febs-green">&#xe7f9;</i></a>
+</script>
+<script data-th-inline="javascript" type="text/javascript">
+    layui.use(['dropdown', 'jquery', 'laydate', 'form', 'table', 'febs', 'xmSelect'], function () {
+        let $ = layui.$,
+            laydate = layui.laydate,
+            febs = layui.febs,
+            form = layui.form,
+            table = layui.table,
+            dropdown = layui.dropdown,
+            validate = layui.validate,
+            $view = $('#factory-device-rent'),
+            $query = $view.find('#query'),
+            $reset = $view.find('#reset'),
+            $searchForm = $view.find('form'),
+            sortObject = {field: 'createTime', type: null},
+            tableIns;
+
+        form.verify(validate);
+        form.render();
+
+        initTable();
+        function initTable() {
+            console.log('------all about current User------');
+            console.log(currentUser);
+            console.log('------------------');
+            console.log(currentUser.userId);
+            console.log('------------------');
+            tableIns = febs.table.init({
+                elem: $view.find('table'),
+                id: 'deviceTable',
+                // url: ctx + 'device/list' + currentUser.userId,
+                url: ctx + 'device/listRent',
+                cols: [[
+                    {type: 'checkbox'},
+                    {field: "deviceId",title:'序号',minWidth: 50},
+                    {field: "deviceNumber",title: '设备编号',minWidth: 200},
+                    {field: 'deviceName', title: '设备名称', minWidth: 150},
+                    {field: 'deviceTypeName',title: '设备类型',minWidth: 150},
+                    {field: 'deviceNorms', title: '设备规格', minWidth: 150},
+                    {field: 'deviceDescribe', title: '设备描述', minWidth: 100},
+                    {title: '设备状态', toolbar: '#deviceRunningStatus-option', minWidth: 140},
+                    {title: '操作', toolbar: '#device-rent-option', minWidth: 140}
+                    //设备租用状态
+                ]]
+            });
+            console.log(tableIns);
+        }
+
+        table.on('tool(deviceRentTable)', function (obj) {
+            let data = obj.data,
+                layEvent = obj.event;
+            if (layEvent === 'rent') {
+                febs.modal.confirm('租用设备', '确定租用该设备？', function () {
+                    rentDevices(data);
+                });
+            }
+        });
+
+        function rentDevices(data) {
+            console.log('the device that has been rented');
+            console.log('the device that has been rented');
+            console.log('the device that has been rented');
+            console.log('the device that has been rented');
+            console.log('the device that has been rented');
+
+            data.factoryId = currentUser.factoryId;
+            console.log(data);
+            febs.post(ctx + 'device/update/',data, function () {
+                layer.closeAll();
+                febs.alert.success('租用设备成功');
+                $('#febs-factory-device').find('#query').click();
+            });
+        }
+
+        form.on('submit(device-add-form-submit)', function (data) {
+            layer.closeAll();
+            return false;
+        });
+
+    });
+</script>

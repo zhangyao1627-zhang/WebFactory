@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.mrbird.febs.system.mapper.ProductypeMapper">
+    <sql id="countProductTypeDetailSql" >
+        SELECT
+        COUNT(1)
+        FROM
+        product_type pt
+        WHERE 1 = 1
+        <if test="productype.productTypeName != null and productype.productTypeName != ''">
+            AND pt.product_type_name = #{productype.productTypeName}
+        </if>
+        <if test="productype.productTypeDescription != null and productype.productTypeDescription != ''">
+            AND pt.product_type_description = #{productype.productTypeDescription}
+        </if>
+    </sql>
+    <select id="findById" parameterType="Long" resultType="Productype">
+       SELECT
+            pt.product_type_id productTypeId,
+            pt.product_type_name productTypeName,
+            pt.product_type_description productTypeDescription
+        FROM
+            product_type pt
+        WHERE  pt.product_type_id = #{productTypeId}
+    </select>
+    <select id="countProductTypeDetail" parameterType="productype" resultType="long">
+        <include refid="countProductTypeDetailSql"/>
+    </select>
+</mapper>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.mrbird.febs.system.mapper.DeviceMapper">
+    <sql id="countDeviceDetailSql" >
+        SELECT
+        COUNT(1)
+        FROM
+        device d
+        left join device_type dt on d.device_type_id = dt.device_type_id
+        WHERE 1 = 1
+        <if test="device.deviceName != null and device.deviceName != ''">
+            AND d.device_name = #{device.deviceName}
+        </if>
+
+    </sql>
+
+    <sql id="findDeviceDetailSql">
+        SELECT
+        d.device_id deviceId,
+        d.device_name deviceName,
+        d.device_norms deviceNorms,
+        d.device_number deviceNumber,
+        d.device_describe deviceDescribe,
+        d.device_rent_status deviceRentStatus,
+        d.device_running_status deviceRunningStatus,
+        d.device_type_id deviceTypeId,
+        d.factory_id factoryId,
+        dt.device_type_name deviceTypeName,
+        tf.factory_name factoryName,
+        tf.user_id userId
+        FROM
+        device d
+        left join device_type dt on (d.device_type_id = dt.device_type_id)
+        left join t_factory  tf on (d.factory_id = tf.factory_id)
+        WHERE 1 = 1
+        <if test="device.userId != null and device.userId !='' and device.userId != 1">
+            AND tf.user_id = #{device.userId}
+        </if>
+        <if test="device.deviceNumber != null and device.deviceNumber != ''">
+            AND d.device_number = #{device.deviceNumber}
+        </if>
+        <if test="device.deviceName != null and device.deviceName != ''">
+            AND d.device_name = #{device.deviceName}
+        </if>
+        <if test="device.deviceTypeId != null and device.deviceTypeId != ''">
+            AND d.device_type_id = #{device.deviceTypeId}
+        </if>
+        <if test="device.deviceNorms != null and device.deviceNorms != ''">
+            AND d.device_norms = #{device.deviceNorms}
+        </if>
+        <if test="device.deviceDescribe != null and device.deviceDescribe != ''">
+            AND d.device_describe = #{device.deviceDescribe}
+        </if>
+        <if test="device.deviceRunningStatus!= null and device.deviceRunningStatus != ''">
+            AND d.device_running_status = #{device.deviceRunningStatus}
+        </if>
+        <if test="device.deviceRentStatus!= null and device.deviceRentStatus != ''">
+            AND d.device_rent_status = #{device.deviceRentStatus}
+        </if>
+        <if test="device.deviceRentStatus!= null and device.deviceRentStatus != ''">
+            AND d.device_rent_status = #{device.deviceRentStatus}
+        </if>
+        <if test="device.factoryName != null and device.factoryName != ''">
+            AND d.factory_name = #{device.factoryName}
+        </if>
+        <if test="device.deviceTypeName != null and device.deviceTypeName !='' ">
+            AND dt.device_type_name = #{device.deviceTypeName}
+        </if>
+    </sql>
+
+    <select id="countDeviceDetail" parameterType="device" resultType="long">
+        <include refid="countDeviceDetailSql"/>
+    </select>
+
+    <select id="findDeviceDetailPage" parameterType="device" resultType="device">
+        <include refid="findDeviceDetailSql"/>
+    </select>
+
+    <select id="findDeviceDetail" parameterType="device" resultType="device">
+        <include refid="findDeviceDetailSql"/>
+    </select>
+
+    <select id="findById" parameterType="Long" resultType="device">
+        SELECT
+            d.device_id deviceId,
+            d.device_name deviceName,
+            d.device_norms deviceNorms,
+            d.device_number deviceNumber,
+            d.device_describe deviceDescribe,
+            d.device_rent_status deviceRentStatus,
+            d.device_running_status deviceRunningStatus,
+            d.device_type_id deviceTypeId,
+            d.factory_id factoryId,
+            dt.device_type_name deviceTypeName,
+            tf.factory_name factoryName
+        FROM
+            device d
+            left join device_type dt on d.device_type_id = dt.device_type_id
+            left join t_factory  tf on d.factory_id = tf.factory_id
+        WHERE device_id = #{deviceId}
+    </select>
+</mapper>

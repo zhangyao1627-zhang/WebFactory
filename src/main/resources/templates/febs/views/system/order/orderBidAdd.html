@@ -1,0 +1,55 @@
+<style>
+    #orderBid-add {
+        padding: 20px 25px 25px 0;
+    }
+</style>
+<div class="layui-fluid" id="orderBid-add">
+    <form class="layui-form" action="" lay-filter="orderBid-add-form">
+        <div class="layui-form-item" >
+            <div class="layui-inline">
+                <label class="layui-form-label layui-form-label-sm">投标价格</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="orderBidprice" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item febs-hide">
+            <button class="layui-btn" lay-submit="" lay-filter="orderBid-add-form-submit" id="submit"></button>
+        </div>
+    </form>
+</div>
+
+<script data-th-inline="javascript" type="text/javascript">
+    layui.use(['febs', 'form', 'validate', 'xmSelect'], function () {
+        let $ = layui.$,
+            febs = layui.febs,
+            layer = layui.layer,
+            form = layui.form,
+            xmSelect = layui.xmSelect,
+            validate = layui.validate,
+            productTypeXmlSelect,
+            $view = $('#febs-productType'),
+            $query = $view.find('#query'),
+            $reset = $view.find('#reset'),
+            $searchForm = $view.find('form');
+        form.verify(validate);
+        form.render();
+
+        form.on('submit(orderBid-add-form-submit)', function (data) {
+            console.log('---------data---------');
+            console.log(data);
+            console.log('---------data field---------');
+            console.log(data.field)
+            data.field.orderId = currentUser.orderId;
+            data.field.factoryId = currentUser.factoryId;
+            console.log('---------currentUser after get into ---------');
+            console.log(currentUser)
+            febs.post(ctx + 'orderBid/add', data.field, function () {
+                layer.closeAll();
+                febs.alert.success('新增投标成功');
+                $('#febs-order').find('#query').click();
+            });
+            return false;
+        });
+    });
+</script>

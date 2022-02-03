@@ -1,0 +1,110 @@
+<style>
+    #trader-order-set {
+        padding: 20px 25px 25px 0;
+    }
+</style>
+<div class="layui-fluid" id="trader-order-set">
+    <form class="layui-form" action="" lay-filter="trader-order-set-form">
+        <table lay-filter="traderOrderSetTable" lay-data="{id: 'traderOrderSetTable'}"></table>
+        <div class="layui-form-item febs-hide">
+            <button class="layui-btn" lay-submit="" lay-filter="trader-order-set-form-submit" id="submit"></button>
+        </div>
+    </form>
+</div>
+<script type="text/html" id="deviceRunningStatus-option">
+    {{#
+    let deviceRunningStatus = {
+    '3':{title:'故障',color:'volcano'},
+    '2':{title: '闲置中', color:'volcano'},
+    '1': {title: '生产中', color:'volcano'},
+    '0': {title: '关闭', color:'blue'}
+    }[d.deviceRunningStatus];
+    }}
+    <span class="layui-badge febs-bg-{{deviceRunningStatus.color}}">{{ deviceRunningStatus.title }}</span>
+</script>
+<script type="text/html" id="trader-order-set-option">
+    <a lay-event="action2"><i class="layui-icon febs-edit-area febs-green">&#xe7f9;</i></a>
+</script>
+<script data-th-inline="javascript" type="text/javascript">
+    layui.use(['dropdown', 'jquery', 'laydate', 'form', 'table', 'febs', 'xmSelect'], function () {
+        let $ = layui.$,
+            laydate = layui.laydate,
+            febs = layui.febs,
+            form = layui.form,
+            table = layui.table,
+            dropdown = layui.dropdown,
+            validate = layui.validate,
+            $view = $('#trader-order-set'),
+            $query = $view.find('#query'),
+            $reset = $view.find('#reset'),
+            $searchForm = $view.find('form'),
+            sortObject = {field: 'createTime', type: null},
+            tableIns;
+
+        form.verify(validate);
+        form.render();
+
+        initTable();
+        function initTable() {
+            tableIns = febs.table.init({
+                elem: $view.find('table'),
+                id: 'traderOrderSetTable',
+                url: ctx + 'orderBid/list?orderId=' + currentUser.orderId,
+                cols: [[
+                    {type: 'checkbox'},
+                    {field: 'orderId',title:'订单编号',minWidth: 50},
+                    {field: 'factoryId',title: '工厂编号',minWidth: 200},
+                    {field: 'orderBidprice', title: '投标价格', minWidth: 150},
+                    {title: '操作', toolbar: '#trader-order-set-option', minWidth: 140}
+                    //设备租用状态
+                ]]
+            });
+            console.log(tableIns);
+        }
+
+        table.on('tool(traderOrderSetTable)', function (obj) {
+            let data = obj.data,
+                layEvent = obj.event;
+            if (layEvent === 'rent') {
+                febs.modal.confirm('工厂投标', '确定投标该工厂？', function () {
+                    rentDevices(data);
+                });
+            }
+        });
+
+        function rentDevices(data) {
+            data.factoryId = currentUser.factoryId;
+            console.log(data);
+            febs.post(ctx + 'device/update/',data, function () {
+                layer.closeAll();
+                febs.alert.success('租用设备成功');
+                $('#febs-factory-device').find('#query').click();
+            });
+        }
+
+        form.on('submit(trader-order-set-form-submit)', function (data) {
+            layer.closeAll();
+            return false;
+        });
+
+        function action2(data) {
+            console.log('--------fourth data--------');
+            console.log(data);
+            console.log('----------fourth currentUser------');
+            console.log(currentUser);
+            currentUser.orderId = data.orderId;
+            febs.modal.open('确定投标', 'system/order/orderBidAdd',{
+                btn: ['提交', '重置'],
+                area: $(window).width() <= 750 ? '95%' : '50%',
+                yes: function (index, layero) {
+                    $('#orderBid-add').find('#submit').trigger('click');
+                },
+                btn2: function () {
+                    $('#user-add').find('#reset').trigger('click');
+                    return false;
+                }
+            });
+            return false;
+        }
+    });
+</script>

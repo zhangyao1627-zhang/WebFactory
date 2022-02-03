@@ -1,0 +1,64 @@
+<style>
+    #user-update {
+        padding: 20px 25px 25px 0;
+    }
+</style>
+<div class="layui-fluid" id="product-type-update">
+    <form class="layui-form" action="" lay-filter="product-type-update-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label febs-form-item-require">产品类型</label>
+            <div class="layui-input-block">
+                <input type="text" name="productTypeName" minlength="2" maxlength="10" lay-verify="range|username"
+                       autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label febs-form-item-require">产品类型描述</label>
+            <div class="layui-input-block">
+                <textarea name="productTypeDescription" maxlength="100" class="layui-textarea"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item febs-hide">
+            <button class="layui-btn" lay-submit="" lay-filter="product-type-update-form-submit" id="submit"></button>
+        </div>
+    </form>
+</div>
+
+<script data-th-inline="javascript">
+    layui.use(['febs', 'form', 'xmSelect', 'validate'], function () {
+        let $ = layui.$,
+            febs = layui.febs,
+            layer = layui.layer,
+            form = layui.form,
+            xmSelect = layui.xmSelect,
+            productType = [[${productType}]],
+            validate = layui.validate,
+            dataPermissionXmlSelect,
+            roleXmSelect,
+            deptXmlSelect;
+
+        form.verify(validate);
+        form.render();
+
+        initUserValue();
+
+        function initUserValue() {
+            form.val("product-type-update-form", {
+                "productTypeName": productType.productTypeName,
+                "productTypeDescription":productType.productTypeDescription,
+            });
+        }
+
+        form.on('submit(product-type-update-form-submit)', function (data) {
+            productType.productTypeName = data.field.productTypeName;
+            productType.productTypeDescription = data.field.productTypeDescription;
+            febs.post(ctx + 'productType/update', productType, function () {
+                layer.closeAll();
+                febs.alert.success(productType.productTypeName + '产品类型修改成功');
+                $('#febs-product').find('#reset').click();
+            });
+            $query.click();
+            return true;
+        });
+    });
+</script>

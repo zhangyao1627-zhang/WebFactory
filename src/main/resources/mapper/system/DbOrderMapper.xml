@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.mrbird.febs.system.mapper.DbOrderMapper">
+    <sql id="countDbOrderDetailSql" >
+        SELECT
+            COUNT(1)
+        FROM
+            db_order
+    </sql>
+    <sql id="findDbOrderDetailSql">
+        SELECT
+            dbo.order_id orderId,
+            dbo.order_number orderNumber,
+            dbo.product_id productId,
+            dbo.order_countnum orderCountNum,
+            dbo.order_deaddate orderDeadDate,
+            dbo.order_deliverdate orderDeliverDate,
+            dbo.order_status orderStatus,
+            dbo.user_id userId,
+            dbo.factory_id userFactoryId,
+            dbo.order_customer_name orderCustomerName,
+            dbo.order_customer_phone orderCustomerPhone,
+            dbo.order_customer_address orderCustomerAddress,
+            p.product_name productName
+        FROM
+            db_order dbo
+                left join product p on dbo.product_id = p.product_id
+        WHERE 1 = 1
+        <if test="dbOrder.userId != null and dbOrder.userId !='' and dbOrder.userId != 1">
+            AND dbo.user_id = #{dbOrder.userId}
+        </if>
+        <if test="dbOrder.orderStatus !=null and dbOrder.userId !=''">
+            AND dbo.order_status = #{dbOrder.orderStatus}
+        </if>
+    </sql>
+    <select id="findDbOrderDetailPage" parameterType="dbOrder" resultType="dbOrder">
+        <include refid="findDbOrderDetailSql"/>
+    </select>
+    <select id="countDbOrderDetail" parameterType="dbOrder" resultType="long">
+        <include refid="countDbOrderDetailSql"/>
+    </select>
+</mapper>
